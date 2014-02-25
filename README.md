@@ -3,7 +3,8 @@ simple-pomf-uploader
 
 Made to handle piped in data as well as file args.
 
-Usage:
+# Usage
+
 To upload 'file.txt', you would type `./pomf file.txt`
 
 The real magic comes in with pipes though. For example, if you wanted to paste
