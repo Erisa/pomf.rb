@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+# Author: Euank
+# License: Public Domain
+
+require 'tempfile'
+require 'json'
+require 'mime/types'
+
+if ARGV.size == 1
+  file = File.new(ARGV[0])
+elsif ARGV.size != 0
+  puts "No support for multiple files yet, sorry"
+  exit
+elsif !STDIN.eof?
+  file = Tempfile.new('pomf')
+  file.write(STDIN.read)
+  file.close
+  # I dearly wish there were a better way to figure out
+  # a stream of data's extension, but I can't find one
+  mime = `file #{file.path}`
+  # Guess I'll add more filetypes here as I hit them
+  # this should possibly be extracted into its own library
+  match_exts = [
+    [/ASCII|text/, 'txt'],
+    [/PNG/, 'png'],
+    [/GIF/, 'gif'],
+    [/JPEG/, 'jpg'],
+    [/XCF/, 'xcf'],
+    [/Adobe Photoshop Image/, 'psd'],
+    [/SVG Scalable Vector Graphics image/, 'svg'],
+    [/PDF document/, 'pdf'],
+    [/DjVu/, 'djvu'],
+    [/HTML document/, 'html'],
+    [/EPUB document/, 'epub'],
+    [/BitTorrent file/, 'torrent'],
+
+    [/PE32 executable.*MS Windows/, 'exe'],
+    [/ISO.*CD\-ROM/, 'iso'],
+
+    [/7\-zip archive/, '7z'],
+    [/Zip archive/, 'zip'],
+    [/RAR archive/, 'rar'],
+    [/tar archive/, 'tar'],
+    [/Java archive data/, 'jar'],
+
+    [/Apple Quicktime movie/, 'mov'],
+    [/WebM/, 'webm'],
+    [/MPEG.*layer III/, 'mp3'],
+    [/FLAC/, 'flac'],
+    [/Ogg data/, 'ogg'],
+    [/Microsoft ASF /, 'wma'],
+    [/MPEG v4.*iTunes AAC\-LC/, 'm4a'],
+    [/Standard MIDI/, 'midi'],
+    [/Matroska data/, 'mkv'],
+    [/ AVI, /, 'avi'],
+    [/Macromedia Flash Video/, 'flv'],
+
+    [/Macromedia Flash data/, 'swf'],
+    [/Ruby script/, 'rb'],
+    [/Python script/, 'py'],
+    [/perl.+script.+executable/, 'pl'],
+  ]
+
+  match_exts.each do |pair|
+    if mime =~ pair[0]
+      newpath = file.path + ".#{pair[1]}"
+      File.rename(file.path, newpath)
+      file = File.new(newpath)
+    end
+  end
+else
+  puts "No file or input. Quitting."
+  exit
+end
+
+res = `curl --silent -sf -F files[]="@#{file.path}" "http://pomf.se/upload.php"`
+
+begin
+  res = JSON.parse(res)
+rescue
+  puts "Unable to parse json response: Got response #{res}"
+  exit
+end
+
+if res["success"]
+  puts "http://a.pomf.se/#{res["files"].first["url"]}"
+else
+  puts "Error: " + res["error"] || res.to_s
+end
