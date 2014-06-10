@@ -4,8 +4,16 @@
 
 require 'tempfile'
 require 'json'
-require 'mime/types'
+require 'net/http'
+use_curl = false
+begin
+  require 'net/http/post/multipart'
+rescue LoadError
+  use_curl = true
+end
 
+
+mime = nil
 if ARGV.size == 1
   file = File.new(ARGV[0])
 elsif ARGV.size != 0
@@ -73,7 +81,22 @@ else
   exit
 end
 
-res = `curl --silent -sf -F files[]="@#{file.path}" "http://pomf.se/upload.php"`
+url = URI.parse('http://pomf.se/upload.php')
+
+res = nil
+
+if use_curl
+  res = `curl --silent -sf -F files[]="@#{file.path}" "http://pomf.se/upload.php"`
+else
+  File.open(file.path) do |toup|
+    req = Net::HTTP::Post::Multipart.new url.path,
+      "files[]" => UploadIO.new(toup, mime, File.basename(toup.path))
+    res = Net::HTTP.start(url.host,url.port) do |http|
+      http.request(req)
+    end
+    res = res.body rescue res
+  end
+end
 
 begin
   res = JSON.parse(res)
