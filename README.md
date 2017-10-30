@@ -3,7 +3,6 @@ pomf.rb
 
 ## About
 This is a simple Ruby library for uploading files to pomf.  
-Until this becomes a gem, the only way to use it will be to copy the file into your project and `require_relative` it. 
 
 Example of usage (Shown in pry)
 ```ruby
