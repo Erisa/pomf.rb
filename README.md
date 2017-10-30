@@ -1,28 +1,33 @@
-simple-pomf-uploader
+pomf.rb
 ====================
 
-Made to handle piped in data as well as file args.
+## About
+This is a simple Ruby library for uploading files to pomf.  
+Until this becomes a gem, the only way to use it will be to copy the file into your project and `require_relative` it. 
 
-# Usage
+Example of usage (Shown in pry)
+```ruby
+[1] pry(main)> require_relative 'pomf'
+=> true
+[2] pry(main)> Pomf.upload_file('test.txt')
+=> "http://a.pomf.cat/ziizkv.txt"
+[3] pry(main)> 
+```
 
-To upload 'file.txt', you would type `./pomf file.txt`
+You can also specify upload and result urls in the argmuments.  
+For example:
+```ruby
+[1] pry(main)> require_relative 'pomf'
+=> true
+[2] pry(main)> Pomf.upload_file('test.txt', 'https://i.fl0.co/upload.php', 'https://i.fl0.co/')
+=> "https://i.fl0.co/i90hqs.txt"
+```
 
-The real magic comes in with pipes though. For example, if you wanted to paste
-your uptime for someone you could do `uptime | ./pomf`. Or perhaps you have an
-image on your clipboard and want to upload it... Only a `xclip -o | ./pomf`
-away.
+More documentation will be added soon.
 
-# Why make another?
+## TODO
+- Verify support with other pomf clones.
+- Tidy up code and fix few errors.
 
-The other command line uploaders I looked at on the tools page, notably the
-Simple Bash Uploader, did not handle pipes at all. I wanted pipes. I also wanted
-it to get extensions right from pipes which was another task to itself.
-
-
-# What's wrong with this one?
-
-Requires ruby (not a default install on many distros) and doesn't have highly
-informative error messages, multi-file uploading, or anything else complicated.
-
-The code for figuring out extensions is also hacky, but I'm not sure there's a
-better solution.
+## Credits
+- [euank](https://github.com/euank) for [simple-pomf-uploader](https://github.com/euank/simple-pomf-uploader)
