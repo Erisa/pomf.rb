@@ -7,11 +7,11 @@ require 'tempfile'
 require 'json'
 require 'net/http'
 require 'net/https'
-use_curl = false
+
 begin
   require 'net/http/post/multipart'
 rescue LoadError
-  use_curl = true
+  puts "Load of net/http/post/multipart failed!"
 end
 
 module Pomf
